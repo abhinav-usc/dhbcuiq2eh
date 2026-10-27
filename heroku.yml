@@ -1,0 +1,4 @@
+# Heroku container stack: build the root Dockerfile; its CMD runs uvicorn on $PORT.
+build:
+  docker:
+    web: Dockerfile

@@ -1,0 +1,15 @@
+{
+  "fetched_at": "2026-10-26T13:53:20.554208+00:00",
+  "actuals": {
+    "dataset": "FUELHH",
+    "settlement_from": "2026-01-01",
+    "settlement_to": "2026-02-01",
+    "rows": 1536
+  },
+  "forecasts": {
+    "dataset": "WINDFOR",
+    "published_from": "2025-12-30T00:00:00+00:00",
+    "published_to": "2026-02-01T00:00:00+00:00",
+    "rows": 19272
+  }
+}

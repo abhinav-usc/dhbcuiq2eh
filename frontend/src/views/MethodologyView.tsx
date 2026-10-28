@@ -12,6 +12,11 @@ export function MethodologyView({ meta }: { meta: Meta }) {
         <Card className="span-6" title="The question" icon={<BookOpenText size={16} />}>
           <div className="prose">
             <p>
+              <strong>Breeze</strong> stands for <strong>B</strong>ias, <strong>R</strong>ange and{' '}
+              <strong>E</strong>rror <strong>E</strong>valuation, with <strong>Z</strong>ero-hindsight{' '}
+              <strong>E</strong>stimates.
+            </p>
+            <p>
               Day-ahead buyers commit before the wind is known. This app answers two things for each delivery day:
               what the latest wind forecast said <em>when bids closed</em>, and how wrong that forecast tends to be.
             </p>

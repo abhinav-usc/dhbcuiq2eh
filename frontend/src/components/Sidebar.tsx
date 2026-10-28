@@ -26,7 +26,7 @@ export function Sidebar({ view, onNavigate, meta }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar__top">
-        <div className="brand">
+        <div className="brand" title="Bias, Range and Error Evaluation, with Zero-hindsight Estimates">
           <span className="brand__mark" aria-hidden>
             <Wind size={20} strokeWidth={2.25} />
           </span>

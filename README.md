@@ -1,4 +1,4 @@
-# Anemo: day-ahead wind forecast desk
+# Breeze: day-ahead wind forecast desk
 
 A web app for a UK utility's day-ahead power buying team. For every delivery day it shows **the national wind forecast that was available when the auction gate closed**, and **how accurate that forecast is**. The team can then size purchases with the error in mind.
 
@@ -24,8 +24,8 @@ heroku open
 **Docker** (one image: FastAPI serves the API and the built React app):
 
 ```bash
-docker build -t anemo .
-docker run --rm -p 8000:8000 anemo        # http://localhost:8000
+docker build -t breeze .
+docker run --rm -p 8000:8000 breeze        # http://localhost:8000
 # Hosts that assign a port (e.g. Heroku) set $PORT, and the image honours it
 ```
 

@@ -31,7 +31,7 @@ export function Sidebar({ view, onNavigate, meta }: SidebarProps) {
             <Wind size={20} strokeWidth={2.25} />
           </span>
           <div>
-            <div className="brand__name">Anemo</div>
+            <div className="brand__name">Breeze</div>
             <div className="brand__tagline">Day-ahead wind desk</div>
           </div>
         </div>

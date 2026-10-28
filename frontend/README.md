@@ -1,4 +1,4 @@
-# Frontend: Anemo dashboard (React + Vite + TypeScript)
+# Frontend: Breeze dashboard (React + Vite + TypeScript)
 
 A three-view dashboard for a day-ahead power buying team:
 

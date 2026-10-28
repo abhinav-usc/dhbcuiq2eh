@@ -1,4 +1,4 @@
-# Backend: Anemo API (FastAPI)
+# Backend: Breeze API (FastAPI)
 
 The backend loads one month of national wind data from Elexon. For each delivery day it works out which forecast a day-ahead buyer actually had when bids closed. It then measures how far that forecast was from what was generated. Everything runs in memory over about 21,000 rows, with no database.
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 export type Theme = 'light' | 'dark'
 
-const STORAGE_KEY = 'anemo-theme'
+const STORAGE_KEY = 'breeze-theme'
 
 // index.html stamps data-theme on <html> before first paint (saved choice,
 // else the OS setting), so read it back instead of deciding twice

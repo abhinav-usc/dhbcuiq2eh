@@ -1,4 +1,4 @@
-"""HTTP endpoints. Thin: validate input, call dataset/metrics, shape the response."""
+# HTTP endpoints. Thin: validate input, call dataset/metrics, shape the response
 
 import math
 from datetime import date
@@ -69,7 +69,7 @@ def decision(
     gate: GateId = Query(config.DEFAULT_GATE),
     dataset: WindDataset = Depends(get_dataset),
 ) -> schemas.DecisionOut:
-    """What the buyer knew at the gate for one delivery day, and how it turned out."""
+    # What the buyer knew at the gate for one delivery day, and how it turned out
     _check_delivery_range(delivery_day, delivery_day)
     gate_def = GATES[gate]
     table = dataset.decisions_for_day(gate_def, delivery_day)
@@ -108,7 +108,7 @@ def decision(
 
 def _coverage(dataset: WindDataset, gate: Gate, first_day: date, last_day: date) -> schemas.Coverage:
     coverage = metrics.band_coverage(dataset.decisions_in_range(gate, first_day, last_day))
-    # Shares, not MW: keep 3 decimals rather than _rounded's 1.
+    # Shares, not MW: keep 3 decimals rather than _rounded's 1
     return schemas.Coverage(**{k: round(v, 3) if isinstance(v, float) else v for k, v in coverage.items()})
 
 
@@ -119,7 +119,7 @@ def accuracy(
     end: date = Query(config.LAST_DELIVERY_DAY, description="Last delivery day"),
     dataset: WindDataset = Depends(get_dataset),
 ) -> schemas.AccuracyOut:
-    """How accurate the gate-time forecast was across a range of delivery days."""
+    # How accurate the gate-time forecast was across a range of delivery days
     _check_delivery_range(start, end)
     gate_def = GATES[gate]
     table = dataset.decisions_in_range(gate_def, start, end)

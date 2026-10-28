@@ -48,7 +48,7 @@ export function AccuracyView({ meta, gate, onGateChange }: AccuracyViewProps) {
   )
 }
 
-/** Hours-ahead covered by the gate-time forecast: gate → start/end of delivery day. */
+/** Hours-ahead covered by the gate-time forecast: gate → start/end of delivery day */
 function decisionWindow(gate: Gate): [number, number] {
   const [h, m] = gate.closes_at_local.split(':').map(Number)
   const gateHour = h + m / 60
@@ -71,7 +71,7 @@ function AccuracyBody({ accuracy }: { accuracy: Accuracy }) {
   return (
     <>
       <div className="hero-row">
-        <div className="hero hero--wide">
+        <div className="hero">
           <div className="hero__eyebrow">Average bias at the {gate.label} gate</div>
           <div className="hero__figure">{signedGw(stats.bias_mw, 2)}</div>
           <p className="hero__caption">
@@ -239,7 +239,7 @@ function AccuracyBody({ accuracy }: { accuracy: Accuracy }) {
   )
 }
 
-/** Side-by-side error statistics: what the bias adjustment buys you. */
+/** Side-by-side error statistics: what the bias adjustment buys you */
 function ComparisonTable({ raw, adjusted }: { raw: ErrorStats; adjusted: ErrorStats }) {
   const change = (before: number | null, after: number | null) =>
     before && after != null ? `${after < before ? '−' : '+'}${percent(Math.abs(after - before) / Math.abs(before), 0)}` : '—'

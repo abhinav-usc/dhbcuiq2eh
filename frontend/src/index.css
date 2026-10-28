@@ -1,33 +1,82 @@
 /* ==========================================================================
-   Tokens
-   Chart colours are mirrored in src/lib/theme.ts (Recharts needs raw values).
+   Anemo styles
+
+   One file, read top to bottom:
+
+     1. Tokens ........ every colour, radius and shadow, in light and dark
+     2. Base .......... resets and focus ring
+     3. App shell ..... sidebar, navigation, snapshot card
+     4. Shared ........ pieces used by more than one view
+     5. Views ......... Decision desk, Forecast accuracy, Methodology
+     6. Responsive .... breakpoints (last, so they win the cascade)
+
+   Rules for adding CSS:
+   - Colours come from tokens, never raw hex, so dark mode works for free.
+   - A rule used by one view lives in that view's section. Used by two or
+     more: Shared.
+   - Class names follow BEM: .block, .block__element, .block--modifier.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. TOKENS
+   Light is the default. Dark overrides the same names, so no component ever
+   needs a theme check. index.html stamps data-theme on <html> before first
+   paint (saved choice, else the OS setting); the toggle in the sidebar
+   changes it.
+
+   Chart colours are read by Recharts through src/lib/theme.ts, which points
+   at these tokens with var(...). The dark chart colours are the dark steps of
+   the same hues, checked against the dark card surface with the dataviz
+   palette validator (CVD separation, contrast >= 3:1).
    ========================================================================== */
 :root {
+  /* Surfaces: page background, cards, and a slightly offset inner surface
+     (table headers, notes, hover washes) */
   --page: #f1f1ee;
   --surface: #ffffff;
   --surface-2: #f7f7f4;
 
+  /* Ink: primary, secondary, muted. --on-ink is the colour of anything drawn
+     on top of an ink-filled shape (brand mark, selected segment, switch) */
   --ink-1: #0b0b0b;
   --ink-2: #52514e;
   --ink-3: #898781;
+  --on-ink: #ffffff;
 
   --hairline: rgba(11, 11, 11, 0.08);
   --hairline-strong: rgba(11, 11, 11, 0.14);
 
+  /* Series colours. Forecast = blue, actual = orange, adjusted = aqua */
   --forecast: #2a78d6;
   --actual: #eb6834;
+  --adjusted: #1baf7a;
+
+  /* Forecast error. "Over" = forecast above actual (buyer short), "under" =
+     forecast below actual (buyer long). -text is for small type on the
+     -wash background (pills, error banner). --neutral is the "about right"
+     midpoint of the diverging histogram */
   --over: #e34948;
   --over-text: #b42d2b;
   --over-wash: #fdeceb;
   --under: #2a78d6;
   --under-text: #1c5cab;
   --under-wash: #e9f1fc;
+  --neutral: #a9a8a1;
   --good: #0ca30c;
+
+  /* Chart chrome */
+  --grid: #ecebe6;
+  --axis: #c3c2b7;
+
+  /* Hover card, switch thumb */
+  --tooltip-bg: #121211;
+  --thumb: #ffffff;
 
   --radius-lg: 20px;
   --radius-md: 14px;
   --radius-sm: 10px;
   --shadow-card: 0 1px 2px rgba(16, 16, 14, 0.04), 0 10px 28px -16px rgba(16, 16, 14, 0.12);
+  --shadow-pop: 0 12px 32px -8px rgba(0, 0, 0, 0.35);
 
   --font: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
@@ -39,6 +88,49 @@
   -webkit-font-smoothing: antialiased;
 }
 
+:root[data-theme='dark'] {
+  color-scheme: dark; /* native controls: scrollbars, the date picker popup */
+
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #1f1f1e;
+
+  --ink-1: #f0efec;
+  --ink-2: #c3c2b7;
+  --ink-3: #898781; /* same as light: 4.9:1 on the card */
+  --on-ink: #0b0b0b;
+
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-strong: rgba(255, 255, 255, 0.18);
+
+  --forecast: #3987e5;
+  --actual: #d95926;
+  --adjusted: #199e70;
+
+  --over: #e66767;
+  --over-text: #f2908f;
+  --over-wash: rgba(230, 103, 103, 0.16);
+  --under: #3987e5;
+  --under-text: #8dbbf5;
+  --under-wash: rgba(57, 135, 229, 0.16);
+  --neutral: #6b6a64;
+  /* --good is a status colour: the same in both themes */
+
+  --grid: #2c2c2a;
+  --axis: #383835;
+
+  /* A touch lighter than the card so the hover card reads as raised */
+  --tooltip-bg: #2c2c2a;
+  --thumb: #f0efec;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -16px rgba(0, 0, 0, 0.6);
+  /* The 1px ring stands in for the border a dark card needs against a dark card */
+  --shadow-pop: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
 *,
 *::before,
 *::after {
@@ -76,7 +168,9 @@ button {
 }
 
 /* ==========================================================================
-   Shell
+   3. APP SHELL
+   Sidebar on the left, one scrolling column on the right. Below 860px the
+   sidebar becomes a top bar (see Responsive).
    ========================================================================== */
 .app {
   display: grid;
@@ -104,6 +198,14 @@ button {
   border-right: 1px solid var(--hairline);
 }
 
+/* Brand on the left, light/dark toggle on the right */
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -118,7 +220,7 @@ button {
   height: 42px;
   border-radius: 50%;
   background: var(--ink-1);
-  color: #fff;
+  color: var(--on-ink);
 }
 
 .brand__name {
@@ -175,6 +277,7 @@ button {
   font-weight: 600;
 }
 
+/* "Data snapshot loaded" card pinned to the bottom of the sidebar */
 .snapshot-card {
   margin-top: auto;
   padding: 16px;
@@ -223,8 +326,13 @@ button {
 }
 
 /* ==========================================================================
-   Page furniture
+   4. SHARED
+   Pieces that more than one view uses, in the order a page is built:
+   header and filters, hero, grid, cards and KPIs, chart furniture, tables,
+   text blocks, loading states.
    ========================================================================== */
+
+/* ---- Page header and filters ------------------------------------------- */
 .page-header {
   display: flex;
   flex-wrap: wrap;
@@ -256,6 +364,7 @@ button {
   color: var(--ink-3);
 }
 
+/* Pill-shaped radio group: gate selector, table/chart view toggle */
 .segmented {
   display: inline-flex;
   gap: 2px;
@@ -287,7 +396,7 @@ button {
 
 .segmented__option[aria-checked='true'] {
   background: var(--ink-1);
-  color: #fff;
+  color: var(--on-ink);
 }
 
 .segmented__hint {
@@ -297,70 +406,11 @@ button {
 }
 
 .segmented__option[aria-checked='true'] .segmented__hint {
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, var(--on-ink) 60%, transparent);
 }
 
-/* Hero row: delivery-day badge + the one big number per view */
-.hero-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 24px 48px;
-  padding: 4px 0 28px;
-}
-
-.day-picker {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.day-picker__badge {
-  display: grid;
-  place-items: center;
-  width: 92px;
-  height: 92px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--hairline-strong);
-  font-size: 36px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.day-picker__text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.25;
-}
-
-.day-picker__eyebrow {
-  margin-bottom: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-.day-picker__weekday,
-.day-picker__month {
-  font-size: 18px;
-  font-weight: 550;
-}
-
-.day-picker__divider {
-  width: 1px;
-  height: 48px;
-  margin: 0 4px;
-  background: var(--hairline-strong);
-}
-
-.day-picker__controls {
-  display: flex;
-  gap: 8px;
-}
-
+/* ---- Round icon button -------------------------------------------------
+   Day stepper and calendar button (Decision desk), theme toggle (sidebar) */
 .round-button {
   position: relative;
   display: grid;
@@ -375,6 +425,12 @@ button {
   transition: background 120ms ease;
 }
 
+.round-button--sm {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
 .round-button:hover:not(:disabled) {
   background: var(--surface-2);
 }
@@ -384,6 +440,7 @@ button {
   cursor: default;
 }
 
+/* The calendar button wraps an invisible native date input */
 .round-button--input input {
   position: absolute;
   inset: 0;
@@ -396,6 +453,15 @@ button {
 .round-button--input:focus-within {
   outline: 2px solid var(--forecast);
   outline-offset: 2px;
+}
+
+/* ---- Hero row: the one big number per view (Decision desk, Accuracy) ---- */
+.hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px 48px;
+  padding: 4px 0 28px;
 }
 
 .hero {
@@ -427,9 +493,8 @@ button {
   color: var(--ink-1);
 }
 
-/* ==========================================================================
-   Cards, KPIs, grid
-   ========================================================================== */
+/* ---- 12-column grid ------------------------------------------------------
+   Cards pick a width with .span-N; below 1200px the wide ones go full width */
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -443,6 +508,7 @@ button {
 .span-8 { grid-column: span 8; }
 .span-12 { grid-column: span 12; }
 
+/* ---- Cards and KPI tiles ------------------------------------------------ */
 .card {
   min-width: 0;
   padding: 20px;
@@ -539,6 +605,7 @@ button {
   color: var(--ink-3);
 }
 
+/* Over/under-forecast delta chip beside a KPI value */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -560,9 +627,7 @@ button {
   color: var(--under-text);
 }
 
-/* ==========================================================================
-   Chart furniture
-   ========================================================================== */
+/* ---- Chart furniture: legend, hover card, series switch ----------------- */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -605,14 +670,15 @@ button {
   background: color-mix(in srgb, var(--key-color) 18%, transparent);
 }
 
+/* The hover card is dark in both themes; its text colours are fixed white */
 .tooltip {
   min-width: 190px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #121211;
+  background: var(--tooltip-bg);
   color: #fff;
   font-size: 12.5px;
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-pop);
 }
 
 .tooltip__title {
@@ -643,6 +709,53 @@ button {
   color: rgba(255, 255, 255, 0.6);
 }
 
+/* On/off switch that shows or hides a series (the bias-adjusted line) */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.switch__track {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--hairline-strong);
+  transition: background 150ms ease;
+}
+
+.switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--thumb);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 150ms ease;
+}
+
+.switch[aria-checked='true'] .switch__track {
+  background: var(--ink-1);
+}
+
+.switch[aria-checked='true'] .switch__thumb {
+  transform: translateX(12px);
+  background: var(--on-ink);
+}
+
+.switch__key {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+/* ---- Tables (every chart has a table twin) ------------------------------ */
 .table-wrap {
   overflow: auto;
   border: 1px solid var(--hairline);
@@ -676,35 +789,7 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-/* ==========================================================================
-   Content blocks
-   ========================================================================== */
-.facts {
-  margin: 0;
-}
-
-.facts div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--hairline);
-}
-
-.facts div:first-child {
-  padding-top: 0;
-}
-
-.facts dt {
-  color: var(--ink-3);
-}
-
-.facts dd {
-  margin: 0;
-  font-weight: 600;
-  text-align: right;
-}
-
+/* ---- Notes ---------------------------------------------------------------- */
 .note {
   margin-top: 16px;
   padding: 12px 14px;
@@ -715,26 +800,7 @@ button {
   color: var(--ink-2);
 }
 
-.prose {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--ink-2);
-}
-
-.prose p + p,
-.prose p + ul {
-  margin-top: 8px;
-}
-
-.prose ul {
-  margin: 0;
-  padding-left: 18px;
-}
-
-.prose strong {
-  color: var(--ink-1);
-}
-
+/* ---- Loading, error, refreshing ------------------------------------------ */
 .status-view {
   display: flex;
   align-items: center;
@@ -768,7 +834,7 @@ button {
   }
 }
 
-/* While a refetch is in flight, hold the previous render, dimmed. */
+/* While a refetch is in flight, hold the previous render, dimmed */
 .is-refreshing {
   opacity: 0.55;
   pointer-events: none;
@@ -776,8 +842,167 @@ button {
 }
 
 /* ==========================================================================
-   Responsive
+   5. VIEWS
+   Only the CSS a single view owns. Everything else the views use is in
+   Shared above.
    ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   VIEW: Decision desk   (src/views/DecisionDesk.tsx)
+   Delivery-day picker in the hero row, and the "facts" list beside the chart.
+   -------------------------------------------------------------------------- */
+.day-picker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.day-picker__badge {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.day-picker__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.day-picker__eyebrow {
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.day-picker__weekday,
+.day-picker__month {
+  font-size: 18px;
+  font-weight: 550;
+}
+
+.day-picker__divider {
+  width: 1px;
+  height: 48px;
+  margin: 0 4px;
+  background: var(--hairline-strong);
+}
+
+.day-picker__controls {
+  display: flex;
+  gap: 8px;
+}
+
+.facts {
+  margin: 0;
+}
+
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.facts div:first-child {
+  padding-top: 0;
+}
+
+.facts dt {
+  color: var(--ink-3);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* --------------------------------------------------------------------------
+   VIEW: Forecast accuracy   (src/views/AccuracyView.tsx)
+   Raw-vs-adjusted comparison tile and the likely-range backtest bar.
+   -------------------------------------------------------------------------- */
+.kpi__value-row--flush {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+/* Stacked bar: share of hours below / inside / above the likely range */
+.coverage__bar {
+  display: flex;
+  gap: 2px;
+  height: 14px;
+}
+
+.coverage__segment {
+  flex-basis: 0;
+  min-width: 2px;
+  border-radius: 4px;
+}
+
+.coverage__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.coverage__legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.coverage__legend strong {
+  color: var(--ink-1);
+}
+
+/* --------------------------------------------------------------------------
+   VIEW: Methodology   (src/views/MethodologyView.tsx)
+   Plain-English definitions. Mostly cards, so only the prose style is here.
+   -------------------------------------------------------------------------- */
+.prose {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.prose p + p,
+.prose p + ul {
+  margin-top: 8px;
+}
+
+.prose ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.prose strong {
+  color: var(--ink-1);
+}
+
+/* ==========================================================================
+   6. RESPONSIVE
+   Kept at the end on purpose: these overrides must come after the rules
+   they change. Grouped by breakpoint, each rule says which part it affects.
+   ========================================================================== */
+
+/* Laptop and below: KPI tiles go 2-up, wide cards go full width */
 @media (max-width: 1200px) {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -791,6 +1016,7 @@ button {
   }
 }
 
+/* Tablet and below: sidebar becomes a top bar with a scrolling nav */
 @media (max-width: 860px) {
   .app {
     grid-template-columns: minmax(0, 1fr);
@@ -806,6 +1032,11 @@ button {
     padding: 12px 16px;
     border-right: 0;
     border-bottom: 1px solid var(--hairline);
+  }
+
+  /* Keep the theme toggle at the right edge of the bar */
+  .sidebar__top {
+    flex: 1;
   }
 
   .nav,
@@ -841,6 +1072,7 @@ button {
   }
 }
 
+/* Phone: single-column KPIs, smaller day badge, full-width gate selector */
 @media (max-width: 560px) {
   .kpi-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -868,89 +1100,4 @@ button {
     padding: 8px 6px;
     font-size: 12.5px;
   }
-}
-
-/* ==========================================================================
-   Switch, coverage bar
-   ========================================================================== */
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
-.switch__track {
-  position: relative;
-  width: 30px;
-  height: 18px;
-  border-radius: 999px;
-  background: var(--hairline-strong);
-  transition: background 150ms ease;
-}
-
-.switch__thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  transition: transform 150ms ease;
-}
-
-.switch[aria-checked='true'] .switch__track {
-  background: var(--ink-1);
-}
-
-.switch[aria-checked='true'] .switch__thumb {
-  transform: translateX(12px);
-}
-
-.switch__key {
-  width: 14px;
-  height: 2px;
-  border-radius: 2px;
-}
-
-.kpi__value-row--flush {
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.coverage__bar {
-  display: flex;
-  gap: 2px;
-  height: 14px;
-}
-
-.coverage__segment {
-  flex-basis: 0;
-  min-width: 2px;
-  border-radius: 4px;
-}
-
-.coverage__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 16px;
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 12.5px;
-  color: var(--ink-2);
-}
-
-.coverage__legend li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.coverage__legend strong {
-  color: var(--ink-1);
 }

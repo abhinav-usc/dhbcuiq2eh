@@ -77,7 +77,7 @@ function DecisionHero({ decision }: { decision: Decision }) {
   )
 }
 
-/** Day error as a trader reads it: "26.6 GWh short" (forecast too high) or "3.5 GWh long". */
+/** Day error as a trader reads it: "26.6 GWh short" (forecast too high) or "3.5 GWh long" */
 function position(errorMwh: number | null): string {
   if (errorMwh == null) return '—'
   return `${gwh(Math.abs(errorMwh))} ${errorMwh > 0 ? 'short' : 'long'}`

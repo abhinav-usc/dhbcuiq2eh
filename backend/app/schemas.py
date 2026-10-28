@@ -1,4 +1,4 @@
-"""Response models. These are the API contract the frontend's api/types.ts mirrors."""
+# Response models. These are the API contract the frontend's api/types.ts mirrors
 
 from datetime import date, datetime
 
@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from app.config import GateId
 
-# MW / MWh values are rounded to 1 decimal place. None means "no data".
+# MW / MWh values are rounded to 1 decimal place. None means "no data"
 
 
 class GateOut(BaseModel):
@@ -60,7 +60,7 @@ class EnergyTotals(BaseModel):
 
 
 class Band(BaseModel):
-    """History behind the likely range and the bias adjustment for one day."""
+    # History behind the likely range and the bias adjustment for one day
 
     low_quantile: float
     high_quantile: float
@@ -73,7 +73,7 @@ class Band(BaseModel):
 
 
 class Coverage(BaseModel):
-    """Backtest: share of hours the actual fell inside / below / above the range."""
+    # Backtest: share of hours the actual fell inside / below / above the range
 
     hours: int
     inside: float | None = None
@@ -89,7 +89,7 @@ class HourPoint(BaseModel):
     adjusted_mw: float
     actual_mw: float | None
     error_mw: float | None
-    # Plausible range for the actual, given the forecast and recent errors.
+    # Plausible range for the actual, given the forecast and recent errors
     band_low_mw: float | None
     band_high_mw: float | None
 
@@ -102,7 +102,7 @@ class DecisionOut(BaseModel):
     totals: EnergyTotals
     stats: ErrorStats
     band: Band | None
-    # How the range method performed over the whole scope, for this gate.
+    # How the range method performed over the whole scope, for this gate
     band_coverage: Coverage
     points: list[HourPoint]
 

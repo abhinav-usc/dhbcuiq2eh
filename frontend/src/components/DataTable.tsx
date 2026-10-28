@@ -13,7 +13,7 @@ interface DataTableProps<Row> {
   maxHeight?: number
 }
 
-/** The table twin of a chart: every plotted value, readable without hovering. */
+/** The table twin of a chart: every plotted value, readable without hovering */
 export function DataTable<Row>({ columns, rows, rowKey, maxHeight = 340 }: DataTableProps<Row>) {
   return (
     <div className="table-wrap" style={{ maxHeight }}>

@@ -2,7 +2,7 @@ interface SwitchProps {
   label: string
   checked: boolean
   onChange: (checked: boolean) => void
-  /** Colour of the series this switch reveals, shown as a line key. */
+  /** Colour of the series this switch reveals, shown as a line key */
   color?: string
 }
 

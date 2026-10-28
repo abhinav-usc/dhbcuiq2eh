@@ -4,7 +4,7 @@ import { chart } from '../lib/theme'
 
 /**
  * Where the actual landed relative to the likely range, as one part-to-whole bar.
- * Below the range = less wind than the range allowed (short); above = long.
+ * Below the range = less wind than the range allowed (short); above = long
  */
 export function CoverageBar({ coverage }: { coverage: Coverage }) {
   if (!coverage.hours || coverage.inside == null) return null

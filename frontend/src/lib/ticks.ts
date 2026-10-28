@@ -1,6 +1,6 @@
 /**
  * Round-number axis ticks (in MW) on 1/2/5 × 10^k GW steps, always including 0.
- * Recharts' automatic ticks land on values like 4.5 / 13.5 GW; these don't.
+ * Recharts' automatic ticks land on values like 4.5 / 13.5 GW; these don't
  */
 export function gwTicks(values: Array<number | null | undefined>, target = 5): number[] {
   const finite = values.filter((v): v is number => v != null && Number.isFinite(v))
@@ -19,10 +19,10 @@ export function gwTicks(values: Array<number | null | undefined>, target = 5): n
 
 export const domainOf = (ticks: number[]): [number, number] => [ticks[0], ticks[ticks.length - 1]]
 
-/** Every `every`-th category label. Pair with interval="preserveStartEnd" so narrow screens drop overlaps. */
+/** Every `every`-th category label. Pair with interval="preserveStartEnd" so narrow screens drop overlaps */
 export function everyNth<T extends { label: string }>(data: T[], every: number): string[] {
   return data.filter((_, i) => i % every === 0).map((d) => d.label)
 }
 
-/** Shared props for category x-axes: fixed tick positions, overlaps hidden on small screens. */
+/** Shared props for category x-axes: fixed tick positions, overlaps hidden on small screens */
 export const categoryAxis = { interval: 'preserveStartEnd' as const, minTickGap: 12 }

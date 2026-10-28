@@ -1,7 +1,7 @@
 """Static configuration for v1.
 
 Everything that encodes a product decision (scope, gate times, band settings)
-lives here so it can be reviewed and changed in one place.
+lives here so it can be reviewed and changed in one place
 """
 
 import os
@@ -15,14 +15,14 @@ UK_TZ = ZoneInfo("Europe/London")
 
 # --- Scope -------------------------------------------------------------------
 # Purchase decisions made on each day of January 2026, each for delivery the
-# following day. So the delivery days shown in the app are 2 Jan .. 1 Feb.
+# following day. So the delivery days shown in the app are 2 Jan .. 1 Feb
 FIRST_DECISION_DAY = date(2026, 1, 1)
 LAST_DECISION_DAY = date(2026, 1, 31)
 FIRST_DELIVERY_DAY = FIRST_DECISION_DAY + timedelta(days=1)
 LAST_DELIVERY_DAY = LAST_DECISION_DAY + timedelta(days=1)
 
 # One extra delivery day before the visible range, used only as history for
-# the uncertainty band (never shown as a delivery day itself).
+# the uncertainty band (never shown as a delivery day itself)
 WARMUP_DELIVERY_DAY = FIRST_DELIVERY_DAY - timedelta(days=1)
 
 # --- Gates (day-ahead auctions) ----------------------------------------------
@@ -55,7 +55,7 @@ HORIZON_BUCKET_HOURS = 3
 HISTOGRAM_BIN_MW = 500
 
 # Uncertainty band: error quantiles from the decision forecasts of recent,
-# fully-settled delivery days (see dataset.error_band).
+# fully-settled delivery days (see dataset.error_band)
 BAND_TRAILING_DAYS = 14
 BAND_MIN_DAYS = 3
 BAND_QUANTILES = (0.1, 0.9)
@@ -64,12 +64,12 @@ BAND_QUANTILES = (0.1, 0.9)
 ELEXON_BASE_URL = "https://data.elexon.co.uk/bmrs/api/v1"
 DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
 
-# Actuals: every settlement day we might evaluate (including the warm-up day).
+# Actuals: every settlement day we might evaluate (including the warm-up day)
 ACTUALS_FROM = WARMUP_DELIVERY_DAY
 ACTUALS_TO = LAST_DELIVERY_DAY
 
 # Forecasts: everything published that could matter for a January decision,
-# reaching back far enough to cover MAX_HORIZON_HOURS for the warm-up day.
+# reaching back far enough to cover MAX_HORIZON_HOURS for the warm-up day
 FORECASTS_PUBLISHED_FROM = datetime.combine(WARMUP_DELIVERY_DAY, time(0), tzinfo=timezone.utc) - timedelta(
     hours=MAX_HORIZON_HOURS
 )

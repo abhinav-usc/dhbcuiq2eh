@@ -1,6 +1,6 @@
 import type { GateId } from './types'
 
-// Same origin in production (FastAPI serves the build); proxied to :8000 by Vite in dev.
+// Same origin in production (FastAPI serves the build); proxied to :8000 by Vite in dev
 const BASE = '/api'
 
 export async function fetchJson<T>(path: string, signal?: AbortSignal): Promise<T> {

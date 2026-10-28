@@ -1,4 +1,4 @@
-"""Error statistics. Inputs are frames from dataset.py (error = forecast - actual)."""
+# Error statistics. Inputs are frames from dataset.py (error = forecast - actual)
 
 import math
 
@@ -12,7 +12,7 @@ def error_stats(table: pd.DataFrame, column: str = "error_mw") -> dict:
     """Statistics of one error column (raw `error_mw` or `adjusted_error_mw`).
 
     short/long are hourly errors summed as energy: buying against this
-    forecast, how many MWh would have been missing (short) or surplus (long).
+    forecast, how many MWh would have been missing (short) or surplus (long)
     """
     scored = table.dropna(subset=[column])
     errors = scored[column]
@@ -34,7 +34,7 @@ def error_stats(table: pd.DataFrame, column: str = "error_mw") -> dict:
 
 
 def energy_totals(table: pd.DataFrame) -> dict:
-    """Hourly MW summed over hours = MWh. Errors compare like-for-like hours."""
+    # Hourly MW summed over hours = MWh. Errors compare like-for-like hours
     scored = table.dropna(subset=["actual_mw"])
     has_actual = not scored.empty
     return {
@@ -49,7 +49,7 @@ def energy_totals(table: pd.DataFrame) -> dict:
 
 
 def band_coverage(table: pd.DataFrame) -> dict:
-    """How often the actual fell inside the likely range (target: P90 - P10)."""
+    # How often the actual fell inside the likely range (target: P90 - P10)
     scored = table.dropna(subset=["actual_mw", "band_low_mw", "band_high_mw"])
     hours = len(scored)
     if hours == 0:
@@ -82,7 +82,7 @@ def by_horizon(table: pd.DataFrame, bucket_hours: int) -> list[dict]:
 
 
 def histogram(table: pd.DataFrame, bin_mw: int) -> list[dict]:
-    """Bins centred on multiples of bin_mw, so one bin sits on zero ("about right")."""
+    # Bins centred on multiples of bin_mw, so one bin sits on zero ("about right")
     errors = table["error_mw"].dropna()
     if errors.empty:
         return []

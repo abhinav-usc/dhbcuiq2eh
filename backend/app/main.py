@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # The whole dataset (~21k rows) is loaded once and kept in memory.
+    # The whole dataset (~21k rows) is loaded once and kept in memory
     snap = snapshot.load_or_fetch(config.DATA_DIR)
     app.state.dataset = WindDataset(snap.actuals, snap.forecasts, fetched_at=snap.fetched_at)
     yield
@@ -31,7 +31,7 @@ def health() -> dict[str, str]:
 app.include_router(router)
 
 # In the Docker image the built React app is copied to ./static; it is
-# absent in local dev, where the Vite dev server serves the frontend instead.
+# absent in local dev, where the Vite dev server serves the frontend instead
 static_dir = Path(__file__).resolve().parent.parent / "static"
 if static_dir.is_dir():
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

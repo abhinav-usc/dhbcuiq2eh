@@ -1,12 +1,13 @@
-"""Turns raw Elexon records into the tables the API serves.
+# Turns raw Elexon records into the tables the API serves
 
+"""
 Conventions used everywhere:
 - Timestamps are tz-aware UTC. A "delivery day" is the UK local calendar date
   of the target hour.
 - error = forecast - actual, in MW. Positive means over-forecast: less wind
   arrived than expected, so a buyer relying on the forecast is short.
 - WINDFOR is hourly, FUELHH is half-hourly. We compare at hourly resolution,
-  averaging the two half-hours of each hour.
+  averaging the two half-hours of each hour
 """
 
 from datetime import date, datetime, timedelta
@@ -18,7 +19,7 @@ from app.config import Gate, GateId, UK_TZ
 
 
 def actuals_frame(records: list[dict]) -> pd.Series:
-    """Half-hourly wind outturn (MW), indexed by settlement period start."""
+    # Half-hourly wind outturn (MW), indexed by settlement period start
     raw = pd.DataFrame.from_records(records, columns=["startTime", "generation"])
     series = pd.Series(
         raw["generation"].astype(float).to_numpy(),
@@ -29,14 +30,14 @@ def actuals_frame(records: list[dict]) -> pd.Series:
 
 
 def to_hourly(half_hourly: pd.Series) -> pd.Series:
-    """Mean of the :00 and :30 half-hours; hours missing either are dropped."""
+    # Mean of the :00 and :30 half-hours; hours missing either are dropped
     grouped = half_hourly.groupby(half_hourly.index.floor("h"))
     means, counts = grouped.mean(), grouped.count()
     return means[counts == 2].rename("actual_mw")
 
 
 def forecasts_frame(records: list[dict]) -> pd.DataFrame:
-    """One row per (forecast run, target hour), future hours only."""
+    # One row per (forecast run, target hour), future hours only
     raw = pd.DataFrame.from_records(records, columns=["publishTime", "startTime", "generation"])
     frame = pd.DataFrame(
         {
@@ -47,7 +48,7 @@ def forecasts_frame(records: list[dict]) -> pd.DataFrame:
     )
     frame["horizon_h"] = (frame["start_time"] - frame["publish_time"]).dt.total_seconds() / 3600
     # Every WINDFOR run also repeats hours already in the past, frozen at the
-    # values of earlier runs. Those are not forecasts, so drop them.
+    # values of earlier runs. Those are not forecasts, so drop them
     frame = frame[frame["horizon_h"] >= 0]
     frame = frame.drop_duplicates(["publish_time", "start_time"], keep="last")
     frame["delivery_day"] = local_dates(frame["start_time"])
@@ -59,7 +60,7 @@ def local_dates(timestamps: pd.Series) -> pd.Series:
 
 
 def gate_cutoff(delivery_day: date, gate: Gate) -> pd.Timestamp:
-    """The moment bids for `delivery_day` close: gate time, UK local, on D-1."""
+    # The moment bids for `delivery_day` close: gate time, UK local, on D-1
     local = datetime.combine(delivery_day - timedelta(days=1), gate.closes_at, tzinfo=UK_TZ)
     return pd.Timestamp(local).tz_convert("UTC")
 
@@ -82,7 +83,7 @@ class WindDataset:
         """For every target hour: the forecast a buyer had when `gate` closed.
 
         That is the latest forecast published strictly before the cutoff for
-        the hour's delivery day. Covers the warm-up day too (for the band).
+        the hour's delivery day. Covers the warm-up day too (for the band)
         """
         if gate.id not in self._decisions:
             self._decisions[gate.id] = self._build_decisions(gate)
@@ -107,7 +108,7 @@ class WindDataset:
         When bidding for day D (at the gate on D-1), day D-1 is still in
         progress, so the newest fully settled day is D-2. Using D-1 would leak
         information the buyer did not have. Statistics are NaN until
-        BAND_MIN_DAYS of history exist.
+        BAND_MIN_DAYS of history exist
         """
         if gate.id not in self._history:
             self._history[gate.id] = self._build_history(gate)
@@ -145,7 +146,7 @@ class WindDataset:
           actual = forecast - error, the error quantiles flip sides. Generation
           can't be negative, so the low side is floored at 0.
         - adjusted_mw: forecast minus recent mean error (our bias adjustment,
-          not Elexon's). Falls back to the raw forecast until there is history.
+          not Elexon's). Falls back to the raw forecast until there is history
         """
         if gate.id not in self._scored:
             table = self.decisions(gate).join(self.history(gate), on="delivery_day")
@@ -165,7 +166,7 @@ class WindDataset:
         return table[table["delivery_day"].between(first_day, last_day)].reset_index(drop=True)
 
     def error_band(self, gate: Gate, delivery_day: date) -> dict | None:
-        """The history behind one delivery day's range and adjustment, or None if too little."""
+        # The history behind one delivery day's range and adjustment, or None if too little
         history = self.history(gate)
         if delivery_day not in history.index:
             return None
@@ -185,7 +186,7 @@ class WindDataset:
         }
 
     def horizon_errors(self, first_day: date, last_day: date) -> pd.DataFrame:
-        """Every forecast (any run, 0..MAX_HORIZON_HOURS ahead) against outturn."""
+        # Every forecast (any run, 0..MAX_HORIZON_HOURS ahead) against outturn
         forecasts = self.forecasts
         mask = (forecasts["horizon_h"] <= config.MAX_HORIZON_HOURS) & forecasts["delivery_day"].between(
             first_day, last_day

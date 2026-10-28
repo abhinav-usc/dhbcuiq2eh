@@ -20,7 +20,7 @@ def actual(start: str, mw: float) -> dict:
 
 @pytest.fixture
 def one_hour() -> WindDataset:
-    """Delivery hour 10 Jan 00:00 with runs either side of each gate."""
+    # Delivery hour 10 Jan 00:00 with runs either side of each gate
     target = "2026-01-10T00:00:00Z"
     return WindDataset(
         actual_records=[actual("2026-01-10T00:00:00Z", 150), actual("2026-01-10T00:30:00Z", 250)],
@@ -69,7 +69,7 @@ def test_decision_error_sign(one_hour):
 @pytest.fixture
 def daily_errors() -> WindDataset:
     """One hour per delivery day, 1..12 Jan. Day d is over-forecast by d*10 MW,
-    except 9 Jan which is wildly off (so we can tell if it leaks into the band)."""
+    except 9 Jan which is wildly off (so we can tell if it leaks into the band)"""
     actuals, forecasts = [], []
     for day in range(1, 13):
         error = 10_000 if day == 9 else day * 10
@@ -82,7 +82,7 @@ def daily_errors() -> WindDataset:
 
 def test_band_uses_only_days_settled_before_the_gate(daily_errors):
     band = daily_errors.error_band(N2EX, date(2026, 1, 10))
-    # Bidding for 10 Jan happens on 9 Jan, so 9 Jan itself must be excluded.
+    # Bidding for 10 Jan happens on 9 Jan, so 9 Jan itself must be excluded
     assert band["history_to"] == date(2026, 1, 8)
     assert band["error_high_mw"] < 10_000
     assert band["history_days"] == 8
@@ -90,7 +90,7 @@ def test_band_uses_only_days_settled_before_the_gate(daily_errors):
 
 def test_adjustment_subtracts_mean_error_of_settled_days(daily_errors):
     row = daily_errors.decisions_for_day(N2EX, date(2026, 1, 10)).iloc[0]
-    # Days 1-8 Jan were over-forecast by 10..80 MW: mean 45. 9 Jan (10 GW) must not leak in.
+    # Days 1-8 Jan were over-forecast by 10..80 MW: mean 45. 9 Jan (10 GW) must not leak in
     assert row["adjusted_mw"] == row["forecast_mw"] - 45
 
 
@@ -101,6 +101,6 @@ def test_adjustment_falls_back_to_raw_without_history(daily_errors):
 
 
 def test_band_needs_minimum_history(daily_errors):
-    # For 4 Jan only 1-2 Jan are settled: below BAND_MIN_DAYS (3).
+    # For 4 Jan only 1-2 Jan are settled: below BAND_MIN_DAYS (3)
     assert daily_errors.error_band(N2EX, date(2026, 1, 4)) is None
     assert daily_errors.error_band(N2EX, date(2026, 1, 5))["history_days"] == 3

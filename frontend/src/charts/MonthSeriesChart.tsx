@@ -21,7 +21,7 @@ export function MonthSeriesChart({ series, showAdjusted }: { series: SeriesPoint
     adjusted: p.adjusted_mw,
     actual: p.actual_mw,
   }))
-  // One tick at local midnight every few days.
+  // One tick at local midnight every few days
   const midnights = data.filter((d) => fmt.time(d.time) === '00:00').map((d) => d.time)
   const ticks = midnights.filter((_, i) => i % TICK_EVERY_DAYS === 0)
   const yTicks = gwTicks(data.flatMap((d) => [d.forecast, d.actual]))

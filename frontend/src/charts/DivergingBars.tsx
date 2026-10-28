@@ -6,7 +6,7 @@ import { categoryAxis, domainOf, everyNth, gwTicks } from '../lib/ticks'
 
 export interface DivergingDatum {
   label: string
-  /** Forecast − actual (MW). Positive bars go up in the "over" colour. */
+  /** Forecast − actual (MW). Positive bars go up in the "over" colour */
   value: number | null
   tooltipTitle: string
   extraRows?: TooltipRow[]
@@ -20,11 +20,11 @@ interface Row extends DivergingDatum {
 interface DivergingBarsProps {
   data: DivergingDatum[]
   height?: number
-  /** Label every n-th bar. */
+  /** Label every n-th bar */
   tickEvery?: number
 }
 
-/** Over-/under-forecast bars around zero (hourly misses, daily bias). */
+/** Over-/under-forecast bars around zero (hourly misses, daily bias) */
 export function DivergingBars({ data, height = 220, tickEvery = 1 }: DivergingBarsProps) {
   const rows: Row[] = data.map((d) => ({
     ...d,

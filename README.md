@@ -7,7 +7,9 @@ Data: Elexon BMRS only. `FUELHH` (fuel type WIND) provides actuals and `WINDFOR`
 - **Backend** (Python, FastAPI): [backend/README.md](backend/README.md) covers the data findings, business rules, API and tests.
 - **Frontend** (React, Vite, TypeScript): [frontend/README.md](frontend/README.md) covers the views, design system and charts.
 
-![Decision desk](docs/screenshots/decision-desk.png)
+| Light | Dark |
+|---|---|
+| ![Decision desk, light theme](docs/screenshots/decision-desk.png) | ![Decision desk, dark theme](docs/screenshots/decision-desk-dark.png) |
 
 ## Run it
 
@@ -24,16 +26,23 @@ heroku open
 ```bash
 docker build -t anemo .
 docker run --rm -p 8000:8000 anemo        # http://localhost:8000
-# Hosts that assign a port (e.g. Heroku) set $PORT; the image honours it.
+# Hosts that assign a port (e.g. Heroku) set $PORT, and the image honours it
 ```
 
 **Local development** (two terminals):
 
 ```bash
-cd backend && python3.10 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+cd backend && python3.12 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/uvicorn app.main:app --reload                 # :8000
 
 cd frontend && npm install && npm run dev               # :5173, proxies /api to :8000
+```
+
+**Checks:**
+
+```bash
+cd backend && .venv/bin/python -m pytest -q             # 26 tests
+cd frontend && npm run build && npm run lint            # type-check, build, lint
 ```
 
 ## Repository layout
@@ -43,11 +52,12 @@ backend/    FastAPI app, Elexon snapshot (data/), tests
 frontend/   React app
 docs/       screenshots
 Dockerfile  multi-stage: node builds the frontend → python:3.12-slim runs everything
+heroku.yml  tells Heroku's container stack to build the Dockerfile
 ```
 
 ## Status
 
-v1, 27 Oct 2026. Deployment target: Heroku, as a container (`heroku.yml` → root `Dockerfile`). See "Decisions to discuss" in each README.
+Complete for the brief's scope: purchase decisions made in January 2026. It deploys to Heroku as a container (`heroku.yml` → root `Dockerfile`). The design choices are written up in the backend and frontend READMEs.
 
 **Headline (N2EX gate, January 2026):** the forecast ran **+1.73 GW high** on average, leaving a buyer **1,392 GWh short** over the month. A bias adjustment that uses only data available at the gate cuts the average error by 19% and the shortfall to 655 GWh. The likely range held 75% of hours, against an 80% target.
 
@@ -59,5 +69,6 @@ This project was built with **Claude Code** (Anthropic's AI coding assistant), w
 - Researching day-ahead gate times.
 - Writing the backend, frontend, tests, Dockerfile and these READMEs.
 - Checking the UI via headless-browser screenshots.
+- Drafting the client pitch deck.
 
-All design decisions are listed for human review in the READMEs.
+The author set the scope and made the design decisions, which are written up in the backend and frontend READMEs. The author reviewed the results.

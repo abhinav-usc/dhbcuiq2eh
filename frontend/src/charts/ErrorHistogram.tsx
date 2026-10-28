@@ -15,7 +15,7 @@ interface Datum {
 
 const LABEL_EVERY_MW = 2000
 
-/** Bins are centred on multiples of 0.5 GW; the zero bin is the neutral midpoint. */
+/** Bins are centred on multiples of 0.5 GW; the zero bin is the neutral midpoint */
 export function ErrorHistogram({ bins }: { bins: HistogramBin[] }) {
   const total = bins.reduce((sum, b) => sum + b.count, 0)
   const data: Datum[] = bins.map((bin) => ({

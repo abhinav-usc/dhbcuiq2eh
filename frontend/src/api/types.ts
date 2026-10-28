@@ -1,5 +1,5 @@
 // Mirrors backend/app/schemas.py. Keep the two in sync by hand for v1.
-// Timestamps are ISO-8601 UTC strings; days are "YYYY-MM-DD" (UK local date).
+// Timestamps are ISO-8601 UTC strings; days are "YYYY-MM-DD" (UK local date)
 
 export type GateId = 'epex_hourly' | 'n2ex' | 'half_hourly'
 
@@ -37,9 +37,9 @@ export interface ErrorStats {
   p90_abs_mw: number | null
   max_abs_mw: number | null
   mean_actual_mw: number | null
-  /** Energy missing in over-forecast hours (MWh). */
+  /** Energy missing in over-forecast hours (MWh) */
   short_mwh: number | null
-  /** Energy surplus in under-forecast hours (MWh). */
+  /** Energy surplus in under-forecast hours (MWh) */
   long_mwh: number | null
 }
 
@@ -64,7 +64,7 @@ export interface Band {
   history_to: string
 }
 
-/** Backtest of the likely range: share of hours the actual fell inside / below / above. */
+/** Backtest of the likely range: share of hours the actual fell inside / below / above */
 export interface Coverage {
   hours: number
   inside: number | null
@@ -77,7 +77,7 @@ export interface HourPoint {
   published_at: string
   horizon_h: number
   forecast_mw: number
-  /** Our bias-adjusted forecast (not Elexon's). */
+  /** Our bias-adjusted forecast (not Elexon's) */
   adjusted_mw: number
   actual_mw: number | null
   error_mw: number | null

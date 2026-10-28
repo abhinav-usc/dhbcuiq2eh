@@ -1,6 +1,7 @@
 import { BookOpenText, CalendarClock, Crosshair, Wind } from 'lucide-react'
 import type { Meta } from '../api/types'
 import { fmt } from '../lib/format'
+import { ThemeToggle } from './ThemeToggle'
 
 export type View = 'decision' | 'accuracy' | 'method'
 
@@ -24,14 +25,17 @@ interface SidebarProps {
 export function Sidebar({ view, onNavigate, meta }: SidebarProps) {
   return (
     <aside className="sidebar">
-      <div className="brand">
-        <span className="brand__mark" aria-hidden>
-          <Wind size={20} strokeWidth={2.25} />
-        </span>
-        <div>
-          <div className="brand__name">Anemo</div>
-          <div className="brand__tagline">Day-ahead wind desk</div>
+      <div className="sidebar__top">
+        <div className="brand">
+          <span className="brand__mark" aria-hidden>
+            <Wind size={20} strokeWidth={2.25} />
+          </span>
+          <div>
+            <div className="brand__name">Anemo</div>
+            <div className="brand__tagline">Day-ahead wind desk</div>
+          </div>
         </div>
+        <ThemeToggle />
       </div>
 
       <nav className="nav" aria-label="Main">

@@ -26,7 +26,7 @@ interface Datum {
 
 interface HorizonChartProps {
   buckets: HorizonBucket[]
-  /** Hours-ahead range the gate-time forecast covers (gate → each delivery hour). */
+  /** Hours-ahead range the gate-time forecast covers (gate → each delivery hour) */
   decisionWindow: [number, number]
 }
 

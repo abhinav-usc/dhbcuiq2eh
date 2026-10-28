@@ -2,7 +2,7 @@
 
 Both are public "stream" endpoints: no API key, no pagination, one JSON array
 per request. We keep the raw records untouched; all cleaning happens in
-dataset.py so it is visible and testable.
+dataset.py so it is visible and testable
 """
 
 from datetime import date, datetime
@@ -19,7 +19,7 @@ def _iso_utc(dt: datetime) -> str:
 
 
 def fetch_wind_actuals(client: httpx.Client, settlement_from: date, settlement_to: date) -> list[dict]:
-    """FUELHH half-hourly outturn, filtered to fuelType WIND (dates inclusive)."""
+    # FUELHH half-hourly outturn, filtered to fuelType WIND (dates inclusive)
     response = client.get(
         f"{ELEXON_BASE_URL}/datasets/FUELHH/stream",
         params={
@@ -33,7 +33,7 @@ def fetch_wind_actuals(client: httpx.Client, settlement_from: date, settlement_t
 
 
 def fetch_wind_forecasts(client: httpx.Client, published_from: datetime, published_to: datetime) -> list[dict]:
-    """WINDFOR hourly forecasts for every run published in the window."""
+    # WINDFOR hourly forecasts for every run published in the window
     response = client.get(
         f"{ELEXON_BASE_URL}/datasets/WINDFOR/stream",
         params={

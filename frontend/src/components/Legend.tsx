@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 export interface LegendItem {
   label: string
   color: string
-  /** Mirrors the mark: a stroke for lines, a block for bars, a wash for bands. */
+  /** Mirrors the mark: a stroke for lines, a block for bars, a wash for bands */
   kind: 'line' | 'bar' | 'band'
 }
 

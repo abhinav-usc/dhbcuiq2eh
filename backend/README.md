@@ -2,7 +2,7 @@
 
 The backend loads one month of national wind data from Elexon. For each delivery day it works out which forecast a day-ahead buyer actually had when bids closed. It then measures how far that forecast was from what was generated. Everything runs in memory over about 21,000 rows, with no database.
 
-> **Status: v1, 27 Oct 2026.** The core logic is complete and tested (26 tests). It includes a bias-adjusted forecast and a backtest of the likely range. The defaults below were confirmed on 27 Oct (scope, N2EX gate, strictly-before cutoff, Heroku). The remaining open items are in [Decisions to discuss](#decisions-to-discuss).
+> **Status:** complete for the brief's scope (purchase decisions made in January 2026) and covered by 26 tests. It includes a bias-adjusted forecast and a backtest of the likely range. The choices behind it are in [Design choices](#design-choices).
 
 ---
 
@@ -10,10 +10,10 @@ The backend loads one month of national wind data from Elexon. For each delivery
 
 ```bash
 cd backend
-python3.10 -m venv .venv                  # local Python is 3.10; Docker uses 3.12
+python3.12 -m venv .venv                  # local and Docker both use Python 3.12
 .venv/bin/pip install -r requirements-dev.txt
 
-# Optional: refresh the data snapshot from Elexon (about 3 s, no API key).
+# Optional: refresh the data snapshot from Elexon (no API key needed).
 .venv/bin/python -m app.snapshot
 
 .venv/bin/uvicorn app.main:app --reload   # http://localhost:8000
@@ -84,7 +84,7 @@ These properties of the data shape the design. They were found by probing the AP
 | `data/windfor.json` | WINDFOR runs published 30 Dec 2025 00:00Z to 1 Feb 2026 00:00Z |
 | `data/snapshot_meta.json` | When it was fetched, the query windows, row counts |
 
-On startup the app loads these files. If they are missing, it fetches from Elexon (about 3 s) and writes them. January 2026 is history, so the data can't change.
+On startup the app loads these files. If they are missing, it fetches from Elexon and writes them. January 2026 is history, so the data can't change.
 
 ---
 
@@ -200,27 +200,26 @@ Everything is in `app/config.py` as plain constants, so the decisions are easy t
 
 ---
 
-## Decisions to discuss
+## Design choices
 
-These are the choices v1 made so it could ship. Each one is a sensible default that is easy to change.
+| Area | Choice | Why |
+|---|---|---|
+| Framework | FastAPI | Typed response models give the frontend a clear contract and generate the `/docs` page for free. Django's database layer and admin aren't needed, and Flask would need validation added by hand. |
+| Scope | Delivery 2 Jan to 1 Feb (decisions made 1 to 31 Jan), plus 1 Jan as an unseen warm-up day | The brief says *decisions* in January, and a day-ahead decision is made the day before delivery. It is a two-value change in `config.py` if the client means delivery in January. |
+| Gates | EPEX hourly 09:20, N2EX 09:50 (default), half-hourly 15:30 | Taken from exchange documentation. All three are selectable in the app. |
+| Cutoff | The latest run published **strictly before** the gate | It only changes the half-hourly gate, where a run is published at exactly 15:30. |
+| Resolution | Hourly, averaging the two half-hours of each actual | WINDFOR is hourly, so this compares like with like. |
+| Likely range | Pooled P10 to P90 of the last 14 settled days (up to D−2), floored at 0 | Simple, explainable and tested for look-ahead leaks. It held 75% of hours against an 80% target, so it is slightly narrow. A range that depends on wind level or time of day is a next step. |
+| Bias adjustment | An **optional** line, off by default, labelled as ours: forecast minus the mean error of the same D−2 history | It cuts the average miss by 19% but moves risk from short to long (energy long rises from 105 to 554 GWh). The raw published forecast stays the primary line, and both numbers are shown. |
+| Storage | The raw JSON snapshot is committed and baked into the image | The data is immutable history, so a snapshot is the simplest option and works offline. Revisit it if the scope becomes live data. |
+| pandas | Used for the domain logic | It keeps the logic readable for data people. It grows the image from 281 MB to 457 MB. |
+| Python | 3.12 locally and in Docker | Local was moved up from 3.10, which reaches end of life in Oct 2026. Pins are unchanged. |
+| Hosting | Heroku container stack | `heroku.yml` builds the root `Dockerfile`, and the image honours `$PORT`. It runs the same image that is tested locally. |
+| Response contract | Pydantic models, with the TypeScript types mirrored by hand in `frontend/src/api/types.ts` | Small enough to keep in sync by hand. Generating the types from `/openapi.json` is the next step if the API grows. |
 
-| # | Decision | v1 does | Alternatives | Notes |
-|---|---|---|---|---|
-| 1 | **Framework** | FastAPI | Flask, Django | Typed models give us an API contract and `/docs` for free. Django's ORM and admin aren't needed. |
-| 2 | **Reading of "decisions in January"** | Delivery 2 Jan to 1 Feb, plus a 1 Jan warm-up for the band | Delivery 1–31 Jan | The brief says *decisions*, so delivery is shifted by one day. Confirm with the PM. |
-| 3 | **Gate times** | 09:20 / 09:50 / 15:30, N2EX default | Ask the client which auction they trade | These come from exchange docs (EPEX, Nord Pool). Nord Pool labels the 15:30 gate CET while EPEX says GMT, which needs checking. |
-| 4 | **Cutoff rule** | Strictly before the gate | `≤ gate`, or a safety margin (e.g. 10 min before) | It only matters for half-hourly: the 15:30 run is published *at* the gate. |
-| 5 | **Comparison resolution** | Hourly (average of the two half-hours) | Step the forecast to half-hours | Hourly compares like with like. The half-hourly auction might prefer half-hours. |
-| 6 | **Uncertainty band** | Pooled P10–P90, trailing 14 days, ≤ D−2, clamped at 0 | Condition on wind level or hour of day; quantile regression; check calibration | It is *not* calibrated yet: we should measure how often actuals fall outside the band (target 20%). |
-| 7 | **Bias** | **Optional bias-adjusted line** (off by default) + a raw vs adjusted comparison. Trailing 14-day mean error, ≤ D−2. | Exponential weighting; condition on wind level or hour; don't ship it | It cuts MAE by about 19% and roughly halves the energy short, but increases energy long (105 → 554 GWh). Short and long become balanced rather than one-sided. It is our model, so the label and the caveat matter. |
-| 8 | **Storage** | Raw JSON snapshot committed and baked into the image | Fetch at startup; SQLite; Parquet | The data is immutable history, so a snapshot is simplest and works offline. Revisit if the scope becomes "live". |
-| 9 | **pandas** | Used for the domain logic | Pure Python | It makes the logic readable for data people. The image grew from 281 MB to 457 MB with pandas and numpy. |
-| 10 | **Python version** | Local 3.10, Docker 3.12 | Upgrade local to 3.12 | **3.10 reaches end of life this month (Oct 2026).** Pins were chosen to work on both (pandas 2.3.3, numpy 2.2.6). |
-| 11 | **Hosting** | **Decided: Heroku container stack.** `heroku.yml` builds the root `Dockerfile` on Heroku; the image honours `$PORT` | Vercel | Heroku runs the same image we test locally. Paid dyno (Eco or Basic). |
-| 12 | **Response contract** | Pydantic models, types mirrored by hand in `frontend/src/api/types.ts` | Generate TS types from `/openapi.json` | Codegen removes drift. |
+## Known limitations and possible next steps
 
-## Known gaps and next steps
-
+- Gate times come from exchange documentation and should be confirmed with the client. In particular, Nord Pool labels the 15:30 gate CET while EPEX says GMT, which needs checking.
 - Verify the curtailment explanation for the bias, if it can be done within the "Elexon data only" constraint.
 - A conditional band (by wind level or hour of day) to get coverage from 75% up to the 80% target.
 - The horizon chart pools *all* runs targeting the selected days, not just the gate's run, so it doesn't change when you switch gates. The UI subtitle says so, but it may surprise a first-time viewer.

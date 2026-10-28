@@ -4,7 +4,7 @@ export interface TooltipRow {
   color?: string
 }
 
-/** Dark hover card used by every chart. Values lead, labels follow. */
+/** Dark hover card used by every chart. Values lead, labels follow */
 export function TooltipCard({ title, rows }: { title: string; rows: TooltipRow[] }) {
   return (
     <div className="tooltip">

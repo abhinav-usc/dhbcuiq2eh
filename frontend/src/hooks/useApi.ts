@@ -17,7 +17,7 @@ interface Settled<T> {
  * Fetches `path` whenever it changes. While a new request is in flight the
  * previous data is kept, so views can dim the old render instead of flashing
  * a skeleton. `loading` is derived: the last settled request was for a
- * different path. Pass null to skip fetching.
+ * different path. Pass null to skip fetching
  */
 export function useApi<T>(path: string | null): ApiState<T> {
   const [settled, setSettled] = useState<Settled<T>>({ path: null })

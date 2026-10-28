@@ -10,7 +10,7 @@ import { MethodologyView } from './views/MethodologyView'
 
 const VIEWS: View[] = ['decision', 'accuracy', 'method']
 
-// View, gate and day live in the URL so any screen can be shared as a link.
+// View, gate and day live in the URL so any screen can be shared as a link
 function readUrl() {
   const params = new URLSearchParams(window.location.search)
   const view = params.get('view') as View | null
@@ -28,7 +28,7 @@ export default function App() {
   const [gateChoice, setGate] = useState<string | null>(initial.gate)
   const [dayChoice, setDay] = useState<string | null>(initial.day)
 
-  // Fall back to defaults until the user picks, or if the URL holds junk.
+  // Fall back to defaults until the user picks, or if the URL holds junk
   const gate = meta && (meta.gates.some((g) => g.id === gateChoice) ? (gateChoice as GateId) : meta.default_gate)
   const day =
     meta &&

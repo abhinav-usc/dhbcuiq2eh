@@ -25,17 +25,23 @@ interface SidebarProps {
 export function Sidebar({ view, onNavigate, meta }: SidebarProps) {
   return (
     <aside className="sidebar">
-      <div className="sidebar__top">
-        <div className="brand" title="Bias, Range and Error Evaluation, with Zero-hindsight Estimates">
-          <span className="brand__mark" aria-hidden>
-            <Wind size={20} strokeWidth={2.25} />
-          </span>
-          <div>
-            <div className="brand__name">Breeze</div>
-            <div className="brand__tagline">Day-ahead wind desk</div>
+      <div className="sidebar__head">
+        <div className="sidebar__top">
+          <div className="brand">
+            <span className="brand__mark" aria-hidden>
+              <Wind size={20} strokeWidth={2.25} />
+            </span>
+            <div>
+              <div className="brand__name">Breeze</div>
+              <div className="brand__tagline">Day-ahead wind desk</div>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
-        <ThemeToggle />
+        <p className="brand__acronym">
+          <strong>B</strong>ias, <strong>R</strong>ange and <strong>E</strong>rror <strong>E</strong>valuation,
+          with <strong>Z</strong>ero-hindsight <strong>E</strong>stimates
+        </p>
       </div>
 
       <nav className="nav" aria-label="Main">

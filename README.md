@@ -74,4 +74,4 @@ This project was built with assistance from **Claude Code** (Anthropic's AI codi
 - Assisted with implementing the backend and frontend.
 - Gathered research material and information, such as how the Elexon API behaves and when day-ahead auction gates close.
 
-The author directed the work, led the analysis and made the design decisions, and reviewed and edited the code.
+The author directed the work, led the analysis and made the design decisions, wrote the majority of the code, and reviewed/edited any AI generated code.
